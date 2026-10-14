@@ -114,9 +114,11 @@ function treeSet() {
 }
 treeSet()
 const clouds = []
-for (let i = 0; i < 7; i++) { const g = new THREE.Group(), mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true, transparent: true, opacity: 0.92, emissive: 0x334455, emissiveIntensity: 0.15 })
+for (let i = 0; i < 7; i++) {
+  const g = new THREE.Group(), mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true, transparent: true, opacity: 0.92, emissive: 0x334455, emissiveIntensity: 0.15 })
   for (let k = 0; k < 5; k++) { const s = new THREE.Mesh(new THREE.IcosahedronGeometry(1.1 + R() * 0.9, 1), mat); s.position.set(k * 1.3 - 2.6, R() * 0.5, (R() - 0.5) * 1.2); s.scale.y = 0.65; g.add(s) }
-  g.position.set((R() - 0.5) * 90, 22 + R() * 8, -20 - R() * 40); g.userData.v = 0.25 + R() * 0.35; scene.add(g); clouds.push(g) }
+  g.position.set((R() - 0.5) * 90, 22 + R() * 8, -20 - R() * 40); g.userData.v = 0.25 + R() * 0.35; scene.add(g); clouds.push(g)
+}
 
 /* ───────── village state ───────── */
 const buildings = [], plants = [], features = []
@@ -186,7 +188,7 @@ function addPlant(key, x, z, scale = null, animate = true) {
   if (animate) { const s1 = g.scale.x; A.add({ dur: 0.5, ease: 'outBack', update: (u) => g.scale.setScalar(Math.max(0.001, u) * s1) }) }
   plants.push(rec); updateCount(); return rec
 }
-function fitPlant(p) { p.r = PLANTS[p.kind].r * p.g.scale.x / (p.g.userData.plant.scale / (p.g.userData.plant.scale)) ; p.r = PLANTS[p.kind].r * (p.g.userData.plant.scale); p.proxy.position.set(p.x, 0.9, p.z); p.proxy.scale.set(p.r * 1.1, 1.8, p.r * 1.1) }
+function fitPlant(p) { p.r = PLANTS[p.kind].r * p.g.scale.x / (p.g.userData.plant.scale / (p.g.userData.plant.scale)); p.r = PLANTS[p.kind].r * (p.g.userData.plant.scale); p.proxy.position.set(p.x, 0.9, p.z); p.proxy.scale.set(p.r * 1.1, 1.8, p.r * 1.1) }
 function removePlant(p) { if (selected?.obj === p) select(null); const i = plants.indexOf(p); if (i < 0) return; plants.splice(i, 1); const g = p.g, s0 = g.scale.x; A.add({ dur: 0.3, ease: 'outCubic', update: (u) => g.scale.setScalar(Math.max(0.001, (1 - u) * s0)), end: () => { scene.remove(g); g.traverse((o) => { if (o.geometry) o.geometry.dispose() }) } }); scene.remove(p.proxy); updateCount() }
 
 function addFeature(kind, x, z, ry, { animate = true, seed } = {}) {
@@ -228,7 +230,7 @@ document.querySelectorAll('.tabs button').forEach((t) => (t.onclick = () => { ta
 buildPalette()
 function setPlacing(p) {
   placing = p; markCards(); ghost.visible = false
-  if (p) { select(null); placeRot = 0; mirrorNext = 1; ghost.userData.fp = p.kind === 'building' ? styleFootprint(p.key) : p.kind === 'feature' ? featureFootprint(p.key) : null; $('#tip').textContent = p.kind === 'feature' ? `Click the grass to place the ${FEATURES[p.key].name.toLowerCase()} · R rotates · Esc cancels` : p.kind === 'building' ? `Click the grass to build the ${STYLES[p.key].name.toLowerCase()} · R rotates · Esc cancels` : `Click the grass to plant ${PLANTS[p.key].name.toLowerCase()} (keep clicking for more) · Esc to stop`; $('#tip').classList.add('show'); canvas.style.cursor = 'crosshair' }
+  if (p) { select(null); placeRot = 0; mirrorNext = 1; ghost.userData.fp = p.kind === 'building' ? styleFootprint(p.key) : p.kind === 'feature' ? featureFootprint(p.key) : null; $('#tip').textContent = p.kind === 'feature' ? `Click the grass to place the ${FEATURES[p.key].name.toLowerCase()} · R rotates · Esc cancels` : p.kind === 'building' ? `Click the grass to build the ${STYLES[p.key].name.toLowerCase()} · R rotates · Esc cancels` : `Click the grass to plant ${PLANTS[p.key].name.toLowerCase()} (keep clicking for more) · Esc to stop`; if (matchMedia('(pointer:coarse)').matches) $('#tip').textContent = $('#tip').textContent.replace('Click', 'Tap').replace(/ · R rotates · Esc cancels/, '').replace(/ \(keep clicking for more\) · Esc to stop/, ''); $('#tip').classList.add('show'); canvas.style.cursor = 'crosshair' }
   else { $('#tip').classList.remove('show'); canvas.style.cursor = '' }
 }
 const panel = $('#sel'), ppanel = $('#psel'), fpanel = $('#fsel')
@@ -270,8 +272,10 @@ $('#pbig').onclick = () => resizePlant(1.18); $('#psmall').onclick = () => resiz
 $('#pclose').onclick = () => select(null)
 $('#fclose').onclick = () => select(null); $('#fdel').onclick = () => selected?.kind === 'feature' && removeFeature(selected.obj); $('#frot').onclick = () => rotateSel(1); $('#fshuf').onclick = () => selected?.kind === 'feature' && reshuffleFeature(selected.obj)
 function resizePlant(f) { const p = selected?.obj; if (!p || selected.kind !== 'plant') return; const s = Math.max(0.5, Math.min(2.6, p.g.scale.x * f)); p.g.userData.plant.scale = s; const s0 = p.g.scale.x; A.add({ dur: 0.3, ease: 'outBack', update: (u) => p.g.scale.setScalar(s0 + (s - s0) * u), end: () => fitPlant(p) }) }
-function rotateSel(d) { if (selected?.kind === 'feature') { const f = selected.obj, ny = f.g.rotation.y + d * PI / 2; if (!canPlace(f.fp, f.x, f.z, ny, f)) return toast('No room to rotate here.'); const y0 = f.g.rotation.y; A.add({ dur: 0.4, ease: 'outBack', update: (u) => { f.g.rotation.y = y0 + (ny - y0) * u } }); return }
-  if (selected?.kind !== 'building') return; const b = selected.obj, ny = b.group.rotation.y + d * PI / 2; if (!canPlace(b.fp, b.group.position.x, b.group.position.z, ny, b)) return toast('No room to rotate here.'); const y0 = b.group.rotation.y; A.add({ dur: 0.4, ease: 'outBack', update: (u) => { b.group.rotation.y = y0 + (ny - y0) * u } }) }
+function rotateSel(d) {
+  if (selected?.kind === 'feature') { const f = selected.obj, ny = f.g.rotation.y + d * PI / 2; if (!canPlace(f.fp, f.x, f.z, ny, f)) return toast('No room to rotate here.'); const y0 = f.g.rotation.y; A.add({ dur: 0.4, ease: 'outBack', update: (u) => { f.g.rotation.y = y0 + (ny - y0) * u } }); return }
+  if (selected?.kind !== 'building') return; const b = selected.obj, ny = b.group.rotation.y + d * PI / 2; if (!canPlace(b.fp, b.group.position.x, b.group.position.z, ny, b)) return toast('No room to rotate here.'); const y0 = b.group.rotation.y; A.add({ dur: 0.4, ease: 'outBack', update: (u) => { b.group.rotation.y = y0 + (ny - y0) * u } })
+}
 let toastT; function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 1800) }
 function focus(b) {
   const tgt = new THREE.Vector3(b.group.position.x, 0.32 + b.floorsN * b.blocks[0].H * 0.55 + 0.3, b.group.position.z), dir = camera.position.clone().sub(controls.target).normalize()
@@ -280,7 +284,7 @@ function focus(b) {
 }
 $('#time').oninput = (e) => { applyTime(+e.target.value / 100); document.querySelectorAll('.pre button').forEach((b) => b.classList.remove('on')) }
 document.querySelectorAll('.pre button').forEach((b) => (b.onclick = () => { const v = { night: 0, dusk: 1 / 3, golden: 2 / 3, day: 1 }[b.dataset.p]; $('#time').value = v * 100; applyTime(v); document.querySelectorAll('.pre button').forEach((x) => x.classList.toggle('on', x === b)) }))
-$('#reset').onclick = () => { [...buildings].forEach(removeBuilding); [...plants].forEach(removePlant); [...features].forEach(removeFeature) }
+$('#reset').onclick = () => { [...buildings].forEach(removeBuilding);[...plants].forEach(removePlant);[...features].forEach(removeFeature) }
 $('#names').onclick = (e) => { showNames = !showNames; e.currentTarget.classList.toggle('on', showNames) }
 addEventListener('keydown', (e) => {
   if (e.target.tagName === 'INPUT') return
@@ -444,14 +448,16 @@ window.__v.thumb = (kind, cat, size = 256) => {
 }
 const SUGGEST = ['Riverbend', 'Oakwood', 'Willowmere']
 const vname = $('#vname'), wname = $('#wname'), welcome = $('#welcome')
-const store = { get: (k) => { try { return localStorage.getItem(k) } catch { return null } }, set: (k, v) => { try { localStorage.setItem(k, v) } catch {} } }
+const store = { get: (k) => { try { return localStorage.getItem(k) } catch { return null } }, set: (k, v) => { try { localStorage.setItem(k, v) } catch { } } }
 const setVillageName = (n) => { n = (n || '').trim() || 'Hearth'; vname.value = n; document.title = n + ' · a tiny village'; store.set('village-name', n) }
 for (const n of SUGGEST) { const b = document.createElement('button'); b.type = 'button'; b.textContent = n; b.onclick = () => { wname.value = n; document.querySelectorAll('#wsug button').forEach((x) => x.classList.toggle('on', x === b)) }; $('#wsug').appendChild(b) }
 wname.value = store.get('village-name') || ''; setTimeout(() => wname.focus(), 50)
 wname.oninput = () => document.querySelectorAll('#wsug button').forEach((x) => x.classList.toggle('on', x.textContent === wname.value.trim()))
 let hintT
-const startVillage = () => { setVillageName(wname.value); welcome.classList.add('gone'); setTimeout(() => welcome.remove(), 500)
-  if (!buildings.length && !plants.length && !features.length) { const em = $('#empty'); em.classList.remove('hide'); hintT = setTimeout(() => em.classList.add('hide'), 8000) } hintDone = true }
+const startVillage = () => {
+  setVillageName(wname.value); welcome.classList.add('gone'); setTimeout(() => welcome.remove(), 500)
+  if (!buildings.length && !plants.length && !features.length) { const em = $('#empty'); em.classList.remove('hide'); hintT = setTimeout(() => em.classList.add('hide'), 8000) } hintDone = true
+}
 $('#wgo').onclick = startVillage; wname.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); startVillage() } })
 vname.oninput = () => { document.title = (vname.value.trim() || 'Hearth') + ' · a tiny village' }
 vname.onchange = () => setVillageName(vname.value); vname.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Enter') vname.blur() })
