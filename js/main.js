@@ -237,7 +237,7 @@ const panel = $('#sel'), ppanel = $('#psel'), fpanel = $('#fsel')
 function select(o) {
   document.body.classList.toggle('sheet', !!o); const was = selected; selected = null; ring.visible = ringFill.visible = pring.visible = false; panel.classList.remove('show'); ppanel.classList.remove('show'); fpanel.classList.remove('show')
   document.querySelectorAll('.nm').forEach((n) => n.classList.remove('on'))
-  document.body.classList.toggle('selecting', !!o)
+  document.body.classList.toggle('selecting', !!o); setTimeout(resize, 60)
   if (!o) return
   if (o.group) { selected = { kind: 'building', obj: o }; ring.visible = ringFill.visible = true; panel.classList.add('show'); o.label?.classList.add('on'); fillPanel(o) }
   else if (o.isFeature) { selected = { kind: 'feature', obj: o }; ring.visible = ringFill.visible = true; fpanel.classList.add('show'); $('#fn').textContent = FEATURES[o.kind].name }
@@ -267,6 +267,7 @@ $('#reb').onclick = () => selected?.kind === 'building' && rebuild(selected.obj)
 $('#foc').onclick = () => selected?.kind === 'building' && focus(selected.obj)
 $('#shuf').onclick = () => { const b = selected?.obj; if (b) { b.applyLook(randomLook(b.type, Math.random)); fillPanel(b) } }
 $('#close').onclick = () => select(null)
+$('#lkt').onclick = () => { const o = $('#sel').classList.toggle('lk'); $('#lkt').setAttribute('aria-expanded', o); setTimeout(resize, 30) }
 $('#pdel').onclick = () => selected?.kind === 'plant' && removePlant(selected.obj)
 $('#pbig').onclick = () => resizePlant(1.18); $('#psmall').onclick = () => resizePlant(0.85)
 $('#pclose').onclick = () => select(null)
@@ -403,7 +404,7 @@ function sync() {
 /* ───────── loop ───────── */
 const clock = new THREE.Clock(); let frame = 0
 let viewShift = -170
-function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w / h < 0.9 ? 52 : 34; if (w > 760) camera.setViewOffset(w, h, viewShift, 14, w, h); else if (!document.body.classList.contains('sidehidden')) camera.setViewOffset(w, h, 0, 60, w, h); else camera.clearViewOffset(); camera.updateProjectionMatrix() }
+function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w / h < 0.9 ? 52 : 34; if (w > 760) camera.setViewOffset(w, h, viewShift, 14, w, h); else if (document.body.classList.contains('sheet')) { const el = document.querySelector('#sel.show,#psel.show,#fsel.show'), off = Math.min(h * 0.32, (el ? el.offsetHeight : 200) / 2); camera.setViewOffset(w, h, 0, off, w, h) } else if (!document.body.classList.contains('sidehidden')) camera.setViewOffset(w, h, 0, 60, w, h); else camera.clearViewOffset(); camera.updateProjectionMatrix() }
 addEventListener('resize', resize); resize()
 applyTime(2 / 3); document.querySelector('.pre [data-p=golden]').classList.add('on'); controls.autoRotate = false
 const tmpV = new THREE.Vector3()

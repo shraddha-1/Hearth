@@ -1988,6 +1988,71 @@ body[data-night="1"] .ic {
   }
 }
 
+#lkt {
+  display: none
+}
+
+@media (max-width:760px) {
+  #lkt {
+    display: inline-flex
+  }
+
+  #sel .mid {
+    flex-wrap: wrap;
+    gap: 6px
+  }
+
+  #sel:not(.lk) #looks {
+    display: none
+  }
+
+  #sel {
+    max-height: 46dvh;
+    padding: 10px 12px;
+    gap: 8px
+  }
+
+  #sel h3,
+  #nm {
+    font-size: 18px
+  }
+
+  #sel .row {
+    gap: 6px
+  }
+
+  #sel .row .big {
+    flex: 1 1 22%;
+    padding: 8px 4px;
+    font-size: 12px;
+    min-width: 0;
+    white-space: nowrap
+  }
+
+  #sel .stepper .big,
+  #lkt {
+    white-space: nowrap
+  }
+
+  #lkt {
+    padding: 8px 12px
+  }
+
+  #sel.lk #lkt {
+    background: var(--moss);
+    color: #fff
+  }
+
+  #sel .row .big.danger {
+    flex: 1 1 100%
+  }
+
+  .lk .sw button {
+    width: 24px;
+    height: 24px
+  }
+}
+
 #palette.plants {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr))
 }
@@ -2004,4 +2069,4 @@ body[data-night="1"] .ic {
 
 #palette.plants .card.plant b {
   font-size: clamp(13.5px, 3.8vw, 15px)
-}@media (max-width:760px){#tip{top:auto!important;bottom:calc(150px + env(safe-area-inset-bottom))!important;height:auto!important;width:auto!important;max-width:calc(100% - 28px);padding:8px 14px;font-size:13px;line-height:1.3}}
+}
