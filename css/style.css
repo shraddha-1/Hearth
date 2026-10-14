@@ -1994,7 +1994,13 @@ body[data-night="1"] .ic {
 
 @media (max-width:760px) {
   #lkt {
-    display: inline-flex
+    display: none !important
+  }
+
+  #sel {
+    max-height: none;
+    padding: 10px 12px;
+    gap: 8px
   }
 
   #sel .mid {
@@ -2002,54 +2008,87 @@ body[data-night="1"] .ic {
     gap: 6px
   }
 
-  #sel:not(.lk) #looks {
-    display: none
-  }
-
-  #sel {
-    max-height: 46dvh;
-    padding: 10px 12px;
-    gap: 8px
-  }
-
   #sel h3,
   #nm {
     font-size: 18px
   }
 
-  #sel .row {
-    gap: 6px
-  }
-
-  #sel .row .big {
-    flex: 1 1 22%;
-    padding: 8px 4px;
-    font-size: 12px;
-    min-width: 0;
-    white-space: nowrap
-  }
-
-  #sel .stepper .big,
-  #lkt {
-    white-space: nowrap
-  }
-
-  #lkt {
-    padding: 8px 12px
-  }
-
-  #sel.lk #lkt {
-    background: var(--moss);
-    color: #fff
-  }
-
-  #sel .row .big.danger {
+  #sel #looks {
+    display: flex !important;
+    flex-direction: row;
+    gap: 16px;
+    overflow-x: auto;
+    padding: 2px 0 4px;
+    margin: 0 -12px;
+    padding-left: 12px;
+    padding-right: 12px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
     flex: 1 1 100%
   }
 
-  .lk .sw button {
-    width: 24px;
-    height: 24px
+  #sel #looks::-webkit-scrollbar {
+    display: none
+  }
+
+  #sel #looks .lk {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-areas: 'l l' 's i';
+    align-items: center;
+    gap: 3px 6px;
+    scroll-snap-align: start
+  }
+
+  #sel #looks .lk label {
+    grid-area: l
+  }
+
+  #sel #looks .lk .sw {
+    grid-area: s
+  }
+
+  #sel #looks .lk input[type=color] {
+    grid-area: i;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border-radius: 50%
+  }
+
+  #sel #looks .lk label {
+    width: auto;
+    font-size: 11.5px
+  }
+
+  #sel #looks .lk .sw {
+    flex-wrap: nowrap;
+    overflow: visible;
+    padding: 2px;
+    gap: 6px
+  }
+
+  #sel #looks .lk .sw button {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px
+  }
+
+  #sel .row {
+    flex-wrap: nowrap;
+    gap: 6px
+  }
+
+  #sel .row .big,
+  #sel .row .big.danger {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 9px 2px;
+    font-size: 12px;
+    white-space: nowrap;
+    text-align: center
   }
 }
 
