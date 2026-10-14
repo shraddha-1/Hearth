@@ -2004,4 +2004,4 @@ body[data-night="1"] .ic {
 
 #palette.plants .card.plant b {
   font-size: clamp(13.5px, 3.8vw, 15px)
-}
+}@media (max-width:760px){#tip{top:auto!important;bottom:calc(150px + env(safe-area-inset-bottom))!important;height:auto!important;width:auto!important;max-width:calc(100% - 28px);padding:8px 14px;font-size:13px;line-height:1.3}}
