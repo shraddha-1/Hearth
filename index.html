@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Hearth · Build a Fantasy Village</title>
+  <meta name="description"
+    content="A tiny handcrafted 3D fantasy village builder. Place houses, plants, a pond, a barn, a market square and a kids garden.">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">
+{ "imports": {
+  "three": "./vendor/three/build/three.module.min.js",
+  "three/examples/jsm/": "./vendor/three/examples/jsm/"
+} }
+</script>
+</head>
+
+<body>
+  <canvas id="c" tabindex="0" aria-label="Interactive 3D fantasy village"></canvas>
+  <aside id="side" class="glass"><button class="sm" id="sidex" aria-label="Hide build menu" title="Hide menu"><svg
+        class="ico chev" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" />
+      </svg></button><input id="vname" class="h1" maxlength="26" spellcheck="false" aria-label="Village name"
+      value="Hearth">
+    <p class="sub">A tiny handcrafted fantasy village. Pick a house, place it anywhere, click its roof to grow it.</p>
+    <div class="tabs"><button class="on" data-t="houses">Houses</button><button data-t="plants">Plants</button><button
+        data-t="places">Outdoors</button></div>
+    <div id="palette"></div>
+    <div class="meta"><span id="count"></span></div>
+  </aside>
+  <div id="top" class="glass"><label>Time of day</label>
+    <div class="pre"><button class="sm" data-p="night">Night</button><button class="sm"
+        data-p="dusk">Dusk</button><button class="sm on" data-p="golden">Gold</button><button class="sm"
+        data-p="day">Day</button></div><input id="time" type="range" min="0" max="100" value="67">
+    <div class="row"><button class="sm" id="names">Names</button><button class="sm" id="reset">Reset</button></div>
+  </div>
+  <div id="empty" class="hide">
+    <h2>A blank green meadow</h2>
+    <p>Choose a house or plant from the menu, then tap the grass to place it.<br>Drag to move · tap a roof to add a
+      storey · tap a building to rename and recolour it.</p>
+  </div><button class="sm glass" id="sidebtn" aria-label="Show build menu">Menu</button>
+  <div id="labels"></div>
+  <div id="tip"></div>
+  <div id="welcome" role="dialog" aria-modal="true" aria-label="Name your village">
+    <div class="glass wbox" id="wform">
+      <h2>Name your village</h2>
+      <p>Every village needs a name. Pick a suggestion or type your own.</p><input id="wname" maxlength="26"
+        placeholder="Village name" autocomplete="off" spellcheck="false">
+      <div id="wsug"></div><button class="big" type="button" id="wgo">Start building</button>
+    </div>
+  </div>
+  <div id="toast"></div>
+  <section id="sel" class="glass">
+    <div class="hd">
+      <div class="nmwrap"><input id="nm" maxlength="30" aria-label="Building name" spellcheck="false"><span
+          id="ty"></span></div><button class="sm" id="close" aria-label="Close"><svg class="ico" viewBox="0 0 16 16"
+          aria-hidden="true">
+          <path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg></button>
+    </div>
+    <div class="mid">
+      <div class="stepper"><button class="sm" id="sub" title="Remove top storey (−)">−</button><b id="fl"></b><button
+          class="big" id="add" title="Add a storey (+)">+ Storey</button><span id="fmax"></span></div>
+      <div id="looks"></div>
+    </div>
+    <div class="row"><button class="big ghost" id="foc">Focus</button><button class="big ghost"
+        id="rot">Rotate</button><button class="big ghost" id="shuf">Shuffle look</button><button class="big ghost"
+        id="reb">Rebuild</button><button class="big danger" id="del">Remove</button></div>
+  </section>
+  <section id="fsel" class="glass"><b id="fn">Pond</b><button class="sm" id="fshuf">Reshuffle</button><button class="sm"
+      id="frot">Rotate</button><button class="big danger" id="fdel">Remove</button><button class="sm" id="fclose"><svg
+        class="ico" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg></button></section>
+  <section id="psel" class="glass"><b id="pn">Plant</b><button class="sm" id="psmall">Smaller</button><button class="sm"
+      id="pbig">Bigger</button><button class="big danger" id="pdel">Remove</button><button class="sm" id="pclose"><svg
+        class="ico" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg></button></section>
+  <button id="sunbtn" aria-label="Time of day and view options"><svg class="ico sun" viewBox="0 0 24 24"
+      aria-hidden="true">
+      <circle cx="12" cy="12" r="4.2" fill="currentColor" />
+      <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path
+          d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" />
+      </g>
+    </svg></button><button id="info" aria-label="Help and information" aria-expanded="false">i</button>
+  <div id="infop" class="glass" role="dialog" aria-label="How to play">
+    <h3>How to play</h3>
+    <ul>
+      <li><b>Build</b>: Pick a house on the left, then click the grass. <kbd>R</kbd> rotates before you place.</li>
+      <li><b>Move</b>: Drag any house, plant, pond, well or farm. Red means there is no room.</li>
+      <li><b>Grow</b>: Click a roof to add a storey, or use <kbd>+</kbd> / <kbd>−</kbd>.</li>
+      <li><b>Name &amp; colour</b>: Select a house to rename it and change walls, timber, roof, shutters and door.</li>
+      <li><b>Plants &amp; nature</b>: The Plants and Nature tabs add trees, flowers, ponds, wells and farms.</li>
+      <li><b>Camera</b>: Drag to orbit, scroll to zoom, right-drag to pan, double-click a house to fly in.</li>
+      <li><b>Time of day</b>: Night, Dusk, Gold, Day or the slider, top right.</li>
+      <li><b>Village centre</b>: The Houses tab ends with a central barn and a market square with merchant stalls.</li>
+      <li><b>Menu &amp; names</b>: Hide or show the build menu with the <svg class="ico chev" viewBox="0 0 16 16"
+          aria-hidden="true">
+          <path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg> button (or <kbd>B</kbd>). Name labels are off by default; turn them on with Names.</li>
+      <li><b>Remove</b>: Select something and press <kbd>Delete</kbd> or the Remove button.</li>
+    </ul>
+  </div>
+  <script type="module" src="./js/main.js"></script>
+</body>
+
+</html>
